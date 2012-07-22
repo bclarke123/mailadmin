@@ -1,0 +1,20 @@
+<div id="user_outer">
+	<div id="welcome">
+		<p class="status">Logged in as <%= user['email'] %> [<a href="logout">Log out</a>]</p>
+		<% if flash %>
+			<p class="error"><%= flash %></p>
+		<% end %>
+		
+		<fieldset>
+			<legend>Change Password</legend>
+			<form method="post" action="password">
+				<p class="ieonly">Password:</p>
+				<input type="password" name="password" class="txt" placeholder="Password"/>
+				<p class="ieonly">Confirm:</p>
+				<input type="password" name="confirmation" class="txt" placeholder="Confirm"/>
+				<br/>
+				<input type="submit" class="btn" value="Save"/>
+			</form>
+		</fieldset>
+	</div>
+</div>

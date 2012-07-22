@@ -1,0 +1,24 @@
+<div id="login">
+	<h1>Email admin dashboard</h1>
+	<p>Please log in with your existing email and password.</p>
+	<% if flash %>
+		<p class="error"><%= flash %></p>
+	<% end %>
+	<form method="post" action="login">
+	
+		<p class="ieonly">Email address:</p>
+		<div class="input">
+			<input class="txt big" type="email" name="email" placeholder="Email address"/>
+		</div>
+		
+		<p class="ieonly">Password:</p>
+		<div class="input">
+			<input class="txt big" type="password" name="password" placeholder="Password"/>
+		</div>
+		
+		<div class="input">
+			<input class="btn" type="submit" value="Log in"/>
+		</div>
+		
+	</form>
+</div>
