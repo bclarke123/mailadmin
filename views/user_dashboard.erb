@@ -1,8 +1,17 @@
 <div id="user_outer">
 	<div id="welcome">
-		<p class="status">Logged in as <%= user['email'] %> [<a href="logout">Log out</a>]</p>
+		<p class="status">Logged in as <%= user.email %> [<a href="<%= link_to '/user/logout' %>">Log out</a>]</p>
 		<% if flash %>
 			<p class="error"><%= flash %></p>
+		<% end %>
+		
+		<% if user.admin_domains %>
+		<h4>Manage Domain:</h4>
+		<ul>
+			<% user.admin_domains.each do |id, domain| %>
+				<li><a href="<%= link_to "/user/domain/#{id}" %>"><%= domain.name %></a></li>
+			<% end %>
+		</ul>
 		<% end %>
 		
 		<fieldset>

@@ -1,0 +1,27 @@
+<div id="user_outer">
+	<div id="welcome">
+		<p class="status">Logged in as <%= user.email %> [<a href="<%= link_to '/user/logout' %>">Log out</a>]</p>
+		<% if flash %>
+			<p class="error"><%= flash %></p>
+		<% end %>
+		<h4>Managing domain <%= domain.name %> [<a href="<%= link_to '/user/dashboard' %>">Back</a>]</h4>
+		<fieldset>
+			<legend>Add Email</legend>
+			<form method="post" action="<%= link_to "/user/domain/#{domain.id}/new" %>">
+				<p class="ieonly">Address:</p>
+				<input class="txt" type="text" name="lh" placeholder="Address"/>@<%= domain.name %>
+				<br/>
+				<p class="ieonly">Password:</p>
+				<input class="txt" type="password" name="pass" placeholder="Password"/>
+				<br/>
+				<p class="ieonly">Password (confirm):</p>
+				<input class="txt" type="password" name="conf" placeholder="Password (confirm)"/>
+				<br/>
+				<input type="checkbox" name="admin" id="domain_add_admin" value="1"/>
+				<label for="domain_add_admin">Make administrator</label>
+				<br/>
+				<input type="submit" class="btn" value="Save"/>
+			</form>
+		</fieldset>
+	</div>
+</div>
