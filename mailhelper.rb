@@ -50,10 +50,12 @@ class MailHelper
 			left join virtual_domains on domain_admins.domain_id = virtual_domains.id 
 			where virtual_users.id = %d order by admin_domain_name desc;" % id)
 		
-		user = User.new
+		user = nil
 		first = true
 		
 		while row = q.fetch_hash
+			
+			user ||= User.new
 			
 			if first
 				user.id = row['id']
