@@ -88,8 +88,20 @@ class MailHelper
 	
 	def add_user(lh, domain, password, admin)
 		
+		email = @con.escape_string("#{lh}@#{domain.name}")
+		
 		@con.query("insert into virtual_users values(NULL, %d, '%s', '%s')" %
-			[ domain.id, Digest::MD5.hexdigest(password), "#{lh}@#{domain.name}" ])
+			[ domain.id, Digest::MD5.hexdigest(password), email ])
+		
+		q = @con.query("select last_insert_id()")
+		id = q.fetch_row.first
+		
+		if admin
+			@con.query("insert into domain_admins values(%d, %d)" % [ domain.id, id ]) 
+		end
+		
+		@con.query("insert into virtual_aliases values(NULL, %d, '%s', '%s')" %
+			[ domain.id, email, email ])
 		
 	end
 	
