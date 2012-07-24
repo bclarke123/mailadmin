@@ -3,9 +3,10 @@
 require 'mysql'
 require 'digest/md5'
 
+require 'alias'
 require 'config'
-require 'user'
 require 'domain'
+require 'user'
 
 class MailHelper
 	def initialize
@@ -97,6 +98,81 @@ class MailHelper
 		
 		return q.fetch_row.first.to_i > 0
 		
+	end
+	
+	def domain_users(domain)
+		
+		q = @con.query("select virtual_users.*, domain_admins.domain_id as is_admin 
+			from virtual_users left join domain_admins 
+			on virtual_users.domain_id = domain_admins.domain_id
+			and domain_admins.user_id = virtual_users.id
+			where virtual_users.domain_id = %d order by email asc" % domain.id)
+		ret = []
+		while row = q.fetch_hash
+			
+			user = User.new
+			user.id = row['id']
+			user.email = row['email']
+			user.admin_domains = [ row['is_admin'] ]
+			
+			ret << user
+			
+		end
+				
+		return ret
+		
+	end
+	
+	def domain_aliases(domain)
+		
+		q = @con.query("select * from virtual_aliases
+			where domain_id = %d and source != destination order by source asc" % domain.id)
+		ret = []
+		while row = q.fetch_hash
+			
+			a = Alias.new
+			a.id = row['id']
+			a.source = row['source']
+			a.destination = row['destination']
+			
+			ret << a
+			
+		end
+		
+		return ret
+		
+	end
+	
+	def delete_user(uid)
+		
+		user = get_user(uid)
+		
+		@con.query("delete from domain_admins where user_id = %d" % uid)
+		@con.query("delete from virtual_aliases where destination = '%s'" % 
+			@con.escape_string(user.email))
+		@con.query("delete from virtual_users where id = %d" % uid)
+		
+	end
+
+	def get_alias(aid)
+		
+		q = @con.query("select * from virtual_aliases where id = %d" % aid)
+		if row = q.fetch_hash
+			
+			ret = Alias.new
+			ret.id = row['id']
+			ret.source = row['source']
+			ret.destination = row['destination']
+			ret.domain_id = row['domain_id']
+			
+			return ret
+			
+		end
+		
+	end
+	
+	def delete_alias(aid)
+		@con.query("delete from virtual_aliases where id = %d" % aid)
 	end
 	
 end

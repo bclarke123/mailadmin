@@ -108,14 +108,15 @@ end
 
 get '/user/domain/:id' do |id|
 	
-	
-	
 	erb :user_domain, 
 		:locals => { 
 			:flash => @flash, 
 			:user => @user, 
-			:domain => @domain 
+			:domain => @domain,
+			:users => @helper.domain_users(@domain),
+			:aliases => @helper.domain_aliases(@domain)
 		}
+		
 end
 
 post '/user/domain/:id/new' do |id|
@@ -177,4 +178,47 @@ post '/user/password' do
 	
 	redirect '/user/dashboard'
 end
+
+post '/user/email/:id/delete' do |uid|
+	
+	user = @helper.get_user(uid)
+	
+	if user.nil?
+		session[:flash] = "User not found"
+		redirect '/user/dashboard'
+	end
+	
+	if !@user.admin_domains.has_key?(user.domain_id)
+		session[:flash] = "User not found"
+		redirect '/user/dashboard'
+	end
+	
+	@helper.delete_user(uid)
+	
+	session[:flash] = "User #{user.email} deleted."
+	redirect "/user/domain/#{user.domain_id}"
+	
+end
+
+post '/user/alias/:aid/delete' do |aid|
+	
+	a = @helper.get_alias(aid)
+	
+	if a.nil?
+		session[:flash] = "Alias not found"
+		redirect '/user/dashboard'
+	end
+	
+	if !@user.admin_domains.has_key?(a.domain_id)
+		session[:flash] = "Alias not found"
+		redirect '/user/dashboard'
+	end
+	
+	@helper.delete_alias(aid)
+	
+	session[:flash] = "Alias #{a.source} &rarr; #{a.destination} deleted."
+	redirect "/user/domain/#{a.domain_id}"
+	
+end
+
 

@@ -49,17 +49,29 @@ a {
 	line-height: 24pt;
 }
 
-.btn {
-	margin-top: 25px;
-	box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
-	background-color: #f1f2f3;
+.btn.big {
 	font-size: 16pt;
 	padding: 10px;
+	margin-top: 25px;
+}
+
+.btn {
+	margin-top: 10px;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+	background-color: #f1f2f3;
 	border: 5px solid #fff;
 	border-radius: 3px;
 	color: #333;
 	text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
 	cursor: pointer;
+	line-height: 20px;
+}
+
+.btn.ok {
+	background-image: url('../images/accept.png');
+	background-repeat: no-repeat;
+	background-position: 2px center;
+	padding-left: 20px;
 }
 
 #login {
@@ -74,4 +86,44 @@ p.error {
 p.status {
 	font-size: 9pt;
 	margin-top: 0px;
+}
+
+fieldset {
+	margin-bottom: 25px;
+	border: 1px solid #ccc;
+}
+
+#welcome {
+	overflow: hidden;
+}
+
+.fl {
+	float: left;
+}
+
+.clear {
+	clear: both;
+}
+
+form{
+	display: inline;
+}
+
+#add_email legend {
+	padding-left: 24px;
+	background-image: url('../images/email_add.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
+#add_alias legend {
+	padding-left: 24px;
+	background-image: url('../images/email_go.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
+li {
+	list-style: none;
+	line-height: 25px;
 }

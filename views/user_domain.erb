@@ -5,7 +5,7 @@
 			<p class="error"><%= flash %></p>
 		<% end %>
 		<h4>Managing domain <%= domain.name %> [<a href="<%= link_to '/user/dashboard' %>">Back</a>]</h4>
-		<fieldset>
+		<fieldset class="fl" id="add_email">
 			<legend>Add Email</legend>
 			<form method="post" action="<%= link_to "/user/domain/#{domain.id}/new" %>">
 				<p class="ieonly">Address:</p>
@@ -20,8 +20,72 @@
 				<input type="checkbox" name="admin" id="domain_add_admin" value="1"/>
 				<label for="domain_add_admin">Make administrator</label>
 				<br/>
-				<input type="submit" class="btn" value="Save"/>
+				<input type="submit" class="btn ok" value="Save"/>
 			</form>
 		</fieldset>
+		<fieldset class="fl" id="add_alias">
+			<legend>Add Alias</legend>
+			<form method="post" action="<%= link_to "/user/domain/#{domain.id}/new_alias" %>">
+				<p class="ieonly">Address:</p>
+				<input class="txt" type="text" name="lh" placeholder="Address"/>@<%= domain.name %>
+				<br/>
+				<p class="ieonly">Destination:</p>
+				<input class="txt" type="text" name="lh" placeholder="Destination"/>@
+				<select name="dst_domain">
+<% user.admin_domains.each do |id, d| %>
+					<option value="<%= id %>"><%= d.name %></option>
+<% end %>
+				</select>
+				<br/>
+				<input type="submit" class="btn ok" value="Save"/>
+			</form>
+		</fieldset>
+		<div class="clear">
+			<h4>Users</h4>
+<% if users && users.length > 0 %>
+			<ul>
+<% users.each do |u| %>
+				<li>
+					<form method="post" 
+						action="<%= link_to("/user/email/#{u.id}/delete") %>"
+						onsubmit="return confirm('Are you sure?');">
+						<input type="image" src="/images/email_delete.png" alt="Delete" title="Delete"/>
+					</form>
+					<a href="<%= link_to("/user/email/#{u.id}") %>">
+						<img src="/images/email_edit.png" alt="Edit" title="Edit"/>
+					</a>
+					<%= u.email %>
+					<% if u.admin_domains.include? domain.id %>
+						<img src="/images/bullet_star.png" alt="Admin" title="Admin"/>
+					<% end %>
+				</li>
+<% end %>
+			</ul>
+<% else %>
+			<em>No users found</em>
+<% end %>
+		</div>
+		<div class="clear">
+			<h4>Aliases</h4>
+<% if aliases && aliases.length > 0 %>
+			<ul>
+<% aliases.each do |a| %>
+				<li>
+					<form method="post" 
+						action="<%= link_to("/user/alias/#{a.id}/delete") %>"
+						onsubmit="return confirm('Are you sure?');">
+						<input type="image" src="/images/email_delete.png" alt="Delete" title="Delete"/>
+					</form>
+					<a href="<%= link_to("/user/alias/#{a.id}") %>">
+						<img src="/images/email_edit.png" alt="Edit" title="Edit"/>
+					</a>
+					<%= a.source %> &rarr; <%= a.destination %>
+				</li>
+<% end %>
+			</ul>
+<% else %>
+			<em>No aliases found</em>
+<% end %>
+		</div>
 	</div>
 </div>
