@@ -188,7 +188,7 @@ post '/user/email/:id/delete' do |uid|
 		redirect '/user/dashboard'
 	end
 	
-	if !@user.admin_domains.has_key?(user.domain_id)
+	unless @user.admin_domains.has_key?(user.domain_id)
 		session[:flash] = "User not found"
 		redirect '/user/dashboard'
 	end
@@ -209,7 +209,7 @@ post '/user/alias/:aid/delete' do |aid|
 		redirect '/user/dashboard'
 	end
 	
-	if !@user.admin_domains.has_key?(a.domain_id)
+	unless @user.admin_domains.has_key?(a.domain_id)
 		session[:flash] = "Alias not found"
 		redirect '/user/dashboard'
 	end
