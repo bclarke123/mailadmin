@@ -5,41 +5,6 @@
 			<p class="error"><%= flash %></p>
 		<% end %>
 		<h4>Managing domain <%= domain.name %> [<a href="<%= link_to '/user/dashboard' %>">Back</a>]</h4>
-		<fieldset class="fl" id="add_email">
-			<legend>Add Email</legend>
-			<form method="post" action="<%= link_to "/user/domain/#{domain.id}/new" %>">
-				<p class="ieonly">Address:</p>
-				<input class="txt" type="text" name="lh" placeholder="Address"/>@<%= domain.name %>
-				<br/>
-				<p class="ieonly">Password:</p>
-				<input class="txt" type="password" name="pass" placeholder="Password"/>
-				<br/>
-				<p class="ieonly">Password (confirm):</p>
-				<input class="txt" type="password" name="conf" placeholder="Password (confirm)"/>
-				<br/>
-				<input type="checkbox" name="admin" id="domain_add_admin" value="1"/>
-				<label for="domain_add_admin">Make administrator</label>
-				<br/>
-				<input type="submit" class="btn ok" value="Save"/>
-			</form>
-		</fieldset>
-		<fieldset class="fl" id="add_alias">
-			<legend>Add Alias</legend>
-			<form method="post" action="<%= link_to "/user/domain/#{domain.id}/new_alias" %>">
-				<p class="ieonly">Address:</p>
-				<input class="txt" type="text" name="lh" placeholder="Address"/>@<%= domain.name %>
-				<br/>
-				<p class="ieonly">Destination:</p>
-				<input class="txt" type="text" name="lh" placeholder="Destination"/>@
-				<select name="dst_domain">
-<% user.admin_domains.each do |id, d| %>
-					<option value="<%= id %>"><%= d.name %></option>
-<% end %>
-				</select>
-				<br/>
-				<input type="submit" class="btn ok" value="Save"/>
-			</form>
-		</fieldset>
 		<div class="clear">
 			<h4>Users</h4>
 <% if users && users.length > 0 %>

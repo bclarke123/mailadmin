@@ -6,15 +6,58 @@
 		<% end %>
 		
 		<% if user.admin_domains %>
-		<h4>Manage Domain:</h4>
-		<ul>
-			<% user.admin_domains.each do |id, domain| %>
-				<li><a href="<%= link_to "/user/domain/#{id}" %>"><%= domain.name %></a></li>
-			<% end %>
-		</ul>
+			<h4>Manage Domain:</h4>
+			<ul>
+				<% user.admin_domains.each do |id, domain| %>
+					<li><a href="<%= link_to "/user/domain/#{id}" %>"><%= domain.name %></a></li>
+				<% end %>
+			</ul>
+			<fieldset class="fl" id="add_email">
+				<legend>Add Email</legend>
+				<form method="post" action="<%= link_to "/user/email/new" %>">
+					<p class="ieonly">Address:</p>
+					<input class="txt" type="text" name="lh" placeholder="Address"/>@<select name="domain">
+					<% user.admin_domains.each do |id, d| %>
+					<option value="<%= id %>"><%= d.name %></option>
+					<% end %>
+					</select>
+					<br/>
+					<p class="ieonly">Password:</p>
+					<input class="txt" type="password" name="pass" placeholder="Password"/>
+					<br/>
+					<p class="ieonly">Password (confirm):</p>
+					<input class="txt" type="password" name="conf" placeholder="Password (confirm)"/>
+					<br/>
+					<input type="checkbox" name="admin" id="domain_add_admin" value="1"/>
+					<label for="domain_add_admin">Make administrator</label>
+					<br/>
+					<input type="submit" class="btn ok" value="Save"/>
+				</form>
+			</fieldset>
+			<fieldset class="fl" id="add_alias">
+				<legend>Add Alias</legend>
+				<form method="post" action="<%= link_to "/user/alias/new" %>">
+					<p class="ieonly">Address:</p>
+					<input class="txt" type="text" name="slh" placeholder="Address"/>@<select name="src_domain">
+					<% user.admin_domains.each do |id, d| %>
+					<option value="<%= id %>"><%= d.name %></option>
+					<% end %>
+					</select>
+					<br/>
+					<p class="ieonly">Destination:</p>
+					<input class="txt" type="text" name="dlh" placeholder="Destination"/>@
+					<select name="dst_domain">
+	<% user.admin_domains.each do |id, d| %>
+						<option value="<%= id %>"><%= d.name %></option>
+	<% end %>
+					</select>
+					<br/>
+					<input type="submit" class="btn ok" value="Save"/>
+				</form>
+			</fieldset>
 		<% end %>
 		
-		<fieldset>
+		<fieldset class="clear">
 			<legend>Change Password</legend>
 			<form method="post" action="password">
 				<p class="ieonly">Password:</p>

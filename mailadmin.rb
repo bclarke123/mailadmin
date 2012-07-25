@@ -6,6 +6,8 @@ require 'sinatra'
 require 'config'
 require 'mailhelper'
 
+set :show_exceptions, true
+
 enable :sessions
 
 before do
@@ -106,6 +108,23 @@ get '/user/logout' do
 	redirect '/'
 end
 
+post '/user/password' do 
+	
+	pass = params[:password]
+	conf = params[:confirmation]
+	
+	if pass.nil? || pass.empty?
+		session[:flash] = "Password can't be blank"
+	elsif pass != conf
+		session[:flash] = "Password and confirmation don't match"
+	else
+		@helper.update_password(session[:userid], pass)
+		session[:flash] = "Password updated"
+	end
+	
+	redirect '/user/dashboard'
+end
+
 get '/user/domain/:id' do |id|
 	
 	erb :user_domain, 
@@ -119,12 +138,13 @@ get '/user/domain/:id' do |id|
 		
 end
 
-post '/user/domain/:id/new' do |id|
+post '/user/email/new' do
 	
 	lh = params[:lh]
 	pass = params[:pass]
 	conf = params[:conf]
 	admin = "1" == params[:admin]
+	id = params[:domain]
 	
 # TODO this should be in a before but it don't work as-is 
 	domain = @user.admin_domains[id]
@@ -153,30 +173,8 @@ post '/user/domain/:id/new' do |id|
 		session[:flash] = "User #{lh}@#{domain.name} added."
 	end
 	
-	redirect "/user/domain/#{id}"
-	
-end
-
-get '/user/:cmd' do |cmd|
-	user_cmd = "user_#{cmd}".intern
-	erb user_cmd, :locals => { :flash => @flash, :user => @user }
-end
-
-post '/user/password' do 
-	
-	pass = params[:password]
-	conf = params[:confirmation]
-	
-	if pass.nil? || pass.empty?
-		session[:flash] = "Password can't be blank"
-	elsif pass != conf
-		session[:flash] = "Password and confirmation don't match"
-	else
-		@helper.update_password(session[:userid], pass)
-		session[:flash] = "Password updated"
-	end
-	
 	redirect '/user/dashboard'
+	
 end
 
 post '/user/email/:id/delete' do |uid|
@@ -197,6 +195,46 @@ post '/user/email/:id/delete' do |uid|
 	
 	session[:flash] = "User #{user.email} deleted."
 	redirect "/user/domain/#{user.domain_id}"
+	
+end
+
+post '/user/alias/new' do
+	
+	slh = params[:slh]
+	dlh = params[:dlh]
+	src_id = params[:src_domain]
+	dst_id = params[:dst_domain]
+	src = @user.admin_domains[src_id]
+	dst = @user.admin_domains[dst_id]
+	
+	if src_id.nil? || src.nil?
+		session[:flash] = "Invalid source domain"
+		redirect '/user/dashboard'
+	end
+	
+	if dst_id.nil? || dst.nil?
+		session[:flash] = "Invalid destination domain"
+		redirect '/user/dashboard'
+	end
+	
+	if dlh.nil? || dlh.empty?
+		session[:flash] = "Destination user can't be blank"
+		redirect '/user/dashboard'
+	end
+	
+	src_email = "#{slh}@#{src.name}"
+	dst_email = "#{dlh}@#{dst.name}"
+	
+	e_src = @helper.get_alias_by_name(src_email, :src)
+	
+	unless e_src.nil?
+		session[:flash] = "Source address #{src_email} already exists"
+		redirect '/user/dashboard'
+	end
+	
+	@helper.add_alias(src, src_email, dst_email)
+	session[:flash] = "Added alias #{src_email} &rarr; #{dst_email}"
+	redirect '/user/dashboard'
 	
 end
 
@@ -221,4 +259,8 @@ post '/user/alias/:aid/delete' do |aid|
 	
 end
 
+get '/user/:cmd' do |cmd|
+	user_cmd = "user_#{cmd}".intern
+	erb user_cmd, :locals => { :flash => @flash, :user => @user }
+end
 

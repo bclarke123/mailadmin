@@ -93,10 +93,10 @@ class MailHelper
 		@con.query("insert into virtual_users values(NULL, %d, '%s', '%s')" %
 			[ domain.id, Digest::MD5.hexdigest(password), email ])
 		
-		q = @con.query("select last_insert_id()")
-		id = q.fetch_row.first
-		
 		if admin
+			q = @con.query("select last_insert_id()")
+			id = q.fetch_row.first
+			
 			@con.query("insert into domain_admins values(%d, %d)" % [ domain.id, id ]) 
 		end
 		
@@ -121,7 +121,9 @@ class MailHelper
 			on virtual_users.domain_id = domain_admins.domain_id
 			and domain_admins.user_id = virtual_users.id
 			where virtual_users.domain_id = %d order by email asc" % domain.id)
+		
 		ret = []
+		
 		while row = q.fetch_hash
 			
 			user = User.new
@@ -171,6 +173,9 @@ class MailHelper
 	def get_alias(aid)
 		
 		q = @con.query("select * from virtual_aliases where id = %d" % aid)
+		
+		ret = nil
+		
 		if row = q.fetch_hash
 			
 			ret = Alias.new
@@ -179,9 +184,29 @@ class MailHelper
 			ret.destination = row['destination']
 			ret.domain_id = row['domain_id']
 			
-			return ret
-			
 		end
+		
+		return ret
+		
+	end
+	
+	def get_alias_by_name(name, field = :src)
+		
+		f = field == :src ? "source" : "destination"
+		
+		q = @con.query("select id from virtual_aliases where %s = '%s'" % 
+			[ f, @con.escape_string(name) ])
+		
+		return row[0] if row = q.fetch_row
+		
+		return nil
+		
+	end
+	
+	def add_alias(src_domain, src, dst)
+		
+		@con.query("insert into virtual_aliases values (NULL, %d, '%s', '%s')" %
+			[ src_domain.id, @con.escape_string(src), @con.escape_string(dst) ])
 		
 	end
 	
