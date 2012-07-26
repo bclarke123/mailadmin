@@ -83,7 +83,7 @@ a {
 }
 
 select {
-	max-width: 150px;
+	max-width: 130px;
 }
 
 #login {
@@ -103,7 +103,7 @@ p.status {
 fieldset {
 	margin-bottom: 10px;
 	border: 1px solid #ccc;
-	width: 350px;
+	width: 340px;
 }
 
 #welcome {
