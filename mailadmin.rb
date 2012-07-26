@@ -34,7 +34,7 @@ end
 
 before '/user/domain/:id' do |id|
 	@domain = @user.admin_domains[id]
-	unless @domain
+	unless @user.super_admin || @domain
 		session[:flash] = "Domain #{id} not found"
 		redirect '/user/dashboard' 
 	end
@@ -125,6 +125,31 @@ post '/user/password' do
 	redirect '/user/dashboard'
 end
 
+post '/user/domain/new' do
+	
+	if @user.super_admin
+		
+		name = params[:name]
+		@helper.add_domain(name, @user.id)
+		
+	end
+	
+	redirect '/user/dashboard'
+	
+end
+
+post '/user/domain/:id/delete' do |id|
+	
+	if @user.super_admin
+		
+		@helper.delete_domain(id)
+		
+	end
+	
+	redirect '/user/dashboard'
+	
+end
+
 get '/user/domain/:id' do |id|
 	
 	erb :user_domain, 
@@ -138,19 +163,43 @@ get '/user/domain/:id' do |id|
 		
 end
 
+get '/user/email/:id' do |id|
+	
+	user = @helper.get_user(id)
+	did = user.domain_id
+	
+	domain = @user.admin_domains[did]
+	unless domain
+		session[:flash] = "User #{id} not found"
+		redirect '/user/dashboard' 
+	end
+	
+	erb :edit_user,
+		:locals => {
+			:flash => @flash,
+			:user => @user,
+			:subject => user
+		}
+	
+end
+
 post '/user/email/new' do
 	
 	lh = params[:lh]
 	pass = params[:pass]
 	conf = params[:conf]
-	admin = "1" == params[:admin]
 	id = params[:domain]
+	super_admin = params[:super_admin] == "1"
 	
-# TODO this should be in a before but it don't work as-is 
 	domain = @user.admin_domains[id]
 	unless domain
 		session[:flash] = "Domain #{id} not found"
 		redirect '/user/dashboard' 
+	end
+	
+	admin_domains = []
+	@user.admin_domains.each do |did, d|
+		admin_domains << did if params["admin_#{did}".intern] == "1"
 	end
 	
 	flash = nil
@@ -169,11 +218,44 @@ post '/user/email/new' do
 	if flash
 		session[:flash] = flash
 	else
-		@helper.add_user(lh, domain, pass, admin)
+		@helper.add_user(lh, domain, pass, admin_domains, super_admin)
 		session[:flash] = "User #{lh}@#{domain.name} added."
 	end
 	
 	redirect '/user/dashboard'
+	
+end
+
+post '/user/email/:id' do |id|
+	
+	pass = params[:pass]
+	conf = params[:conf]
+	sa = params[:super_admin]
+	
+	user = @helper.get_user(id)
+	
+	if user.nil?
+		session[:flash] = "User #{id} not found"
+		redirect '/user/dashboard'
+	end
+	
+	# only have to validate password and admin settings
+	unless pass.nil? or pass.empty?
+		if pass != conf
+			session[:flash] = "Password and confirmation don't match"
+			redirect "/user/email/#{id}"
+		end
+	end
+	
+	admin_domains = []
+	@user.admin_domains.each do |did, d|
+		admin_domains << did if params["admin_#{did}".intern] == "1"
+	end
+	
+	@helper.update_user(id, pass, admin_domains, sa)
+	
+	session[:flash] = "User #{user.email} updated."
+	redirect "/user/email/#{id}"
 	
 end
 

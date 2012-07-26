@@ -18,6 +18,7 @@ body {
 #content {
 	padding: 15px;
 	color: #333;
+	overflow: hidden;
 }
 
 .ieonly {
@@ -74,6 +75,17 @@ a {
 	padding-left: 20px;
 }
 
+.btn.del {
+	background-image: url('../images/cancel.png');
+	background-repeat: no-repeat;
+	background-position: 2px center;
+	padding-left: 20px;
+}
+
+select {
+	max-width: 150px;
+}
+
 #login {
 	padding: 50px 100px;
 }
@@ -89,8 +101,9 @@ p.status {
 }
 
 fieldset {
-	margin-bottom: 25px;
+	margin-bottom: 10px;
 	border: 1px solid #ccc;
+	width: 350px;
 }
 
 #welcome {
@@ -123,7 +136,48 @@ form{
 	background-position: 4px center;
 }
 
+#chpass legend {
+	padding-left: 24px;
+	background-image: url('../images/computer_edit.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
+#add_domain legend {
+	padding-left: 24px;
+	background-image: url('../images/add.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
 li {
 	list-style: none;
 	line-height: 25px;
 }
+
+ul.scrollable {
+	max-height: 200px;
+	overflow: auto;
+}
+
+ul.scrollable li {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+ul.breadcrumb {
+	margin: 0px;
+	padding: 0px;
+}
+
+ul.breadcrumb li {
+	display: inline-block;
+	line-height: 35px;
+	font-size: 16pt;
+}
+
+ul.breadcrumb li+li:before {
+	content: " » ";
+}
+

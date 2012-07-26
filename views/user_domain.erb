@@ -4,7 +4,12 @@
 		<% if flash %>
 			<p class="error"><%= flash %></p>
 		<% end %>
-		<h4>Managing domain <%= domain.name %> [<a href="<%= link_to '/user/dashboard' %>">Back</a>]</h4>
+		<ul class="breadcrumb">
+			<li>
+				<a href="<%= link_to '/user/dashboard' %>"><img src="/images/house.png" alt="Home"/></a>
+			</li>
+			<li><%= domain.name %></li>
+		</ul>
 		<div class="clear">
 			<h4>Users</h4>
 <% if users && users.length > 0 %>
@@ -41,9 +46,6 @@
 						onsubmit="return confirm('Are you sure?');">
 						<input type="image" src="/images/email_delete.png" alt="Delete" title="Delete"/>
 					</form>
-					<a href="<%= link_to("/user/alias/#{a.id}") %>">
-						<img src="/images/email_edit.png" alt="Edit" title="Edit"/>
-					</a>
 					<%= a.source %> &rarr; <%= a.destination %>
 				</li>
 <% end %>
@@ -52,5 +54,9 @@
 			<em>No aliases found</em>
 <% end %>
 		</div>
+		<form method="post" action="<%= link_to "/user/domain/#{domain.id}/delete" %>"
+			onsubmit="return confirm('Are you certain you would like to delete this domain and all associated users, aliases and admins?\n\nThis cannot be undone.');">
+			<input type="submit" class="btn del" value="Delete domain"/>
+		</form>
 	</div>
 </div>

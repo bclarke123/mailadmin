@@ -4,4 +4,4 @@ create table domain_admins (
 	primary key(domain_id, user_id)
 );
 
-
+alter table virtual_users add column super_admin boolean default false;

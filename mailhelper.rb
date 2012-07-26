@@ -40,14 +40,31 @@ class MailHelper
 		
 	end
 	
+	def login_exists?(lh, domain)
+		
+		q = @con.query("select count(*) from virtual_users where email = '%s'" %
+			@con.escape_string("#{lh}@#{domain.name}") )
+		
+		return q.fetch_row.first.to_i > 0
+		
+	end
+	
+	def update_password(id, password)
+		
+		@con.query("update virtual_users set password = '%s' where id = %d;" %
+			[ Digest::MD5.hexdigest(password), id ])
+		
+	end
+	
 	def get_user(id)
 		
 		q = @con.query(
 			"select virtual_users.*, virtual_domains.id as admin_domain_id, 
 			virtual_domains.name as admin_domain_name 
 			from virtual_users 
-			left join domain_admins on virtual_users.id = domain_admins.user_id 
+			left join domain_admins on virtual_users.id = domain_admins.user_id
 			left join virtual_domains on domain_admins.domain_id = virtual_domains.id 
+			or virtual_users.super_admin
 			where virtual_users.id = %d order by admin_domain_name desc;" % id)
 		
 		user = nil
@@ -62,13 +79,15 @@ class MailHelper
 				user.email = row['email']
 				user.password = row['password']
 				user.domain_id = row['domain_id']
+				user.super_admin = row['super_admin'] == "1"
+				user.admin_domains = {}
 			end
 			
 			if row['admin_domain_id']
 				domain = Domain.new
 				domain.id = row['admin_domain_id']
 				domain.name = row['admin_domain_name']
-				(user.admin_domains ||= {})[domain.id] = domain
+				user.admin_domains[domain.id] = domain
 			end
 			
 			first = false
@@ -79,25 +98,20 @@ class MailHelper
 		
 	end
 	
-	def update_password(id, password)
-		
-		@con.query("update virtual_users set password = '%s' where id = %d;" %
-			[ Digest::MD5.hexdigest(password), id ])
-		
-	end
-	
-	def add_user(lh, domain, password, admin)
+	def add_user(lh, domain, password, admin_domains, super_admin)
 		
 		email = @con.escape_string("#{lh}@#{domain.name}")
 		
-		@con.query("insert into virtual_users values(NULL, %d, '%s', '%s')" %
-			[ domain.id, Digest::MD5.hexdigest(password), email ])
+		@con.query("insert into virtual_users values(NULL, %d, '%s', '%s', %d)" %
+			[ domain.id, Digest::MD5.hexdigest(password), email, super_admin ? 1 : 0 ])
 		
-		if admin
+		if admin_domains && admin_domains.length > 0
 			q = @con.query("select last_insert_id()")
 			id = q.fetch_row.first
 			
-			@con.query("insert into domain_admins values(%d, %d)" % [ domain.id, id ]) 
+			admin_domains.each do |did|
+				@con.query("insert into domain_admins values(%d, %d)" % [ did, id ])
+			end
 		end
 		
 		@con.query("insert into virtual_aliases values(NULL, %d, '%s', '%s')" %
@@ -105,12 +119,44 @@ class MailHelper
 		
 	end
 	
-	def login_exists?(lh, domain)
+	def update_user(uid, password, admin_domains, super_admin)
 		
-		q = @con.query("select count(*) from virtual_users where email = '%s'" %
-			@con.escape_string("#{lh}@#{domain.name}") )
+		if password.nil? or password.empty?
+			password = "password"
+		else
+			password = "'%s'" % Digest::MD5.hexdigest(password)
+		end
 		
-		return q.fetch_row.first.to_i > 0
+		sa = super_admin ? 1 : 0
+		
+		@con.query("update virtual_users set password = %s, super_admin = %d 
+			where id = %d;" % [ password, sa, uid ])
+		
+=begin
+TODO by deleting all the existing admin info, we disallow 2 admins with
+access to 2 different domains the ability to give the same user access
+to domains the other can't see -- it'll delete ones that "I" can't check.
+=end
+
+		@con.query("delete from domain_admins where user_id = %d;" % uid)
+		
+		sql = nil
+		admin_domains.each do |did|
+			(sql ||= "insert into domain_admins values") << " (#{did}, #{uid})," 
+		end
+		
+		@con.query(sql.gsub(/,$/, '')) unless sql.nil?
+		
+	end
+	
+	def delete_user(uid)
+		
+		user = get_user(uid)
+		
+		@con.query("delete from domain_admins where user_id = %d" % uid)
+		@con.query("delete from virtual_aliases where destination = '%s'" % 
+			@con.escape_string(user.email))
+		@con.query("delete from virtual_users where id = %d" % uid)
 		
 	end
 	
@@ -159,17 +205,26 @@ class MailHelper
 		
 	end
 	
-	def delete_user(uid)
+	def add_domain(name, uid)
 		
-		user = get_user(uid)
+		@con.query("insert into virtual_domains values(NULL, '%s');" % 
+			@con.escape_string(name))
 		
-		@con.query("delete from domain_admins where user_id = %d" % uid)
-		@con.query("delete from virtual_aliases where destination = '%s'" % 
-			@con.escape_string(user.email))
-		@con.query("delete from virtual_users where id = %d" % uid)
+		id = @con.query("select last_insert_id();").fetch_row.first
+		
+		@con.query("insert into domain_admins values(%d, %d);" % [ id, uid ])
 		
 	end
-
+	
+	def delete_domain(id)
+		
+		@con.query("delete from virtual_users where domain_id = %d;" % id)
+		@con.query("delete from virtual_aliases where domain_id = %d;" % id)
+		@con.query("delete from domain_admins where domain_id = %d;" % id)
+		@con.query("delete from virtual_domains where id = %d;" % id)
+		
+	end
+	
 	def get_alias(aid)
 		
 		q = @con.query("select * from virtual_aliases where id = %d" % aid)

@@ -1,0 +1,48 @@
+<div id="user_outer">
+	<div id="welcome">
+		<p class="status">Logged in as <%= user.email %> [<a href="<%= link_to '/user/logout' %>">Log out</a>]</p>
+		<% if flash %>
+			<p class="error"><%= flash %></p>
+		<% end %>
+		<ul class="breadcrumb">
+			<li>
+				<a href="<%= link_to '/user/dashboard' %>"><img src="/images/house.png" alt="Home"/></a>
+			</li>
+			<li><a href="<%= link_to "/user/domain/#{subject.domain_id}" %>"><%= user.admin_domains[subject.domain_id].name %></a></li>
+			<li><%= subject.email %></li>
+		</ul>
+		<fieldset class="fl" id="add_email">
+			<legend>Edit user</legend>
+			<form method="post" action="<%= link_to "/user/email/#{subject.id}" %>">
+				<p class="ieonly">Address:&nbsp; <%= subject.email %></p>
+				<p class="ieonly">Password:</p>
+				<input class="txt" type="password" name="pass" placeholder="Password"/>
+				<br/>
+				<p class="ieonly">Password (confirm):</p>
+				<input class="txt" type="password" name="conf" placeholder="Password (confirm)"/>
+				<br/>
+				<p>Make administrator of:</p>
+				<ul class="scrollable">
+				<% user.admin_domains.each do |id, d| %>
+				<li>
+					<input type="checkbox" value="1"
+						id="admin_<%= id %>" name="admin_<%= id %>"
+						<% if subject.admin_domains.has_key?(id)  && !subject.super_admin %>checked="checked"
+						<% end %>/>
+					<label for="admin_<%= id %>"><%= d.name %></label>
+				</li>
+				<% end %>
+				</ul>
+				<% if user.super_admin %>
+					<br/>
+					<input type="checkbox" name="super_admin" id="super_admin" value="1"
+					<% if subject.super_admin %>checked="checked"<% end %>/>
+					<label for="super_admin">Make super-admin</label>
+				<% end %>
+				
+				<br/>
+				<input type="submit" class="btn ok" value="Save"/>
+			</form>
+		</fieldset>
+	</div>
+</div>
