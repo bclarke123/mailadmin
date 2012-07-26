@@ -3,10 +3,8 @@
 require 'mysql'
 require 'digest/md5'
 
-require 'alias'
 require 'config'
-require 'domain'
-require 'user'
+require 'classes'
 
 class MailHelper
 	def initialize
