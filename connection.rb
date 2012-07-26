@@ -6,7 +6,7 @@ require 'digest/md5'
 require 'config'
 require 'classes'
 
-class MailHelper
+class Connection
 	def initialize
 		@con = Mysql::real_connect(
 			Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_DB)

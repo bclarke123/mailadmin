@@ -4,20 +4,20 @@ require 'rubygems'
 require 'sinatra'
 
 require 'config'
-require 'mailhelper'
+require 'connection'
 
 set :show_exceptions, true
 
 enable :sessions
 
 before do
-	@helper = MailHelper.new
+	@con = Connection.new
 	@flash = session[:flash]
 	session[:flash] = nil
 end
 
 after do
-	@helper.close if @helper
+	@con.close if @con
 end
 
 before '/user/*' do
@@ -28,7 +28,7 @@ before '/user/*' do
 	end
 	
 	uid = session[:userid]
-	@user = @helper.get_user(uid)
+	@user = @con.get_user(uid)
 	
 end
 
@@ -84,7 +84,7 @@ post '/login' do
 	email = params[:email]
 	password = params[:password]
 
-	id = session[:userid] = @helper.authenticate(email, password)
+	id = session[:userid] = @con.authenticate(email, password)
 
 	unless id
 		session[:flash] = "Invalid login"
@@ -118,7 +118,7 @@ post '/user/password' do
 	elsif pass != conf
 		session[:flash] = "Password and confirmation don't match"
 	else
-		@helper.update_password(session[:userid], pass)
+		@con.update_password(session[:userid], pass)
 		session[:flash] = "Password updated"
 	end
 	
@@ -138,7 +138,7 @@ post '/user/domain/new' do
 		redirect "/user/dashboard"
 	end
 	
-	@helper.add_domain(name, @user.id)
+	@con.add_domain(name, @user.id)
 	session[:flash] = "Domain #{name} added"
 	redirect '/user/dashboard'
 
@@ -148,7 +148,7 @@ post '/user/domain/:id/delete' do |id|
 	
 	if @user.super_admin
 		
-		@helper.delete_domain(id)
+		@con.delete_domain(id)
 		
 	end
 	
@@ -163,15 +163,15 @@ get '/user/domain/:id' do |id|
 			:flash => @flash, 
 			:user => @user, 
 			:domain => @domain,
-			:users => @helper.domain_users(@domain),
-			:aliases => @helper.domain_aliases(@domain)
+			:users => @con.domain_users(@domain),
+			:aliases => @con.domain_aliases(@domain)
 		}
 		
 end
 
 get '/user/email/:id' do |id|
 	
-	user = @helper.get_user(id)
+	user = @con.get_user(id)
 	did = user.domain_id
 	
 	domain = @user.admin_domains[did]
@@ -217,14 +217,14 @@ post '/user/email/new' do
 		flash = "Password can't be blank"
 	elsif pass != conf
 		flash = "Password and confirmation don't match"
-	elsif @helper.login_exists?(lh, domain)
+	elsif @con.login_exists?(lh, domain)
 		flash = "Address #{lh} already exists for domain #{domain.name}"
 	end
 	
 	if flash
 		session[:flash] = flash
 	else
-		@helper.add_user(lh, domain, pass, admin_domains, super_admin)
+		@con.add_user(lh, domain, pass, admin_domains, super_admin)
 		session[:flash] = "User #{lh}@#{domain.name} added."
 	end
 	
@@ -238,7 +238,7 @@ post '/user/email/:id' do |id|
 	conf = params[:conf]
 	sa = params[:super_admin]
 	
-	user = @helper.get_user(id)
+	user = @con.get_user(id)
 	
 	if user.nil?
 		session[:flash] = "User #{id} not found"
@@ -258,7 +258,7 @@ post '/user/email/:id' do |id|
 		admin_domains << did if params["admin_#{did}".intern] == "1"
 	end
 	
-	@helper.update_user(id, pass, admin_domains, sa)
+	@con.update_user(id, pass, admin_domains, sa)
 	
 	session[:flash] = "User #{user.email} updated."
 	redirect "/user/email/#{id}"
@@ -267,7 +267,7 @@ end
 
 post '/user/email/:id/delete' do |uid|
 	
-	user = @helper.get_user(uid)
+	user = @con.get_user(uid)
 	
 	if user.nil?
 		session[:flash] = "User not found"
@@ -279,7 +279,7 @@ post '/user/email/:id/delete' do |uid|
 		redirect '/user/dashboard'
 	end
 	
-	@helper.delete_user(uid)
+	@con.delete_user(uid)
 	
 	session[:flash] = "User #{user.email} deleted."
 	redirect "/user/domain/#{user.domain_id}"
@@ -313,14 +313,14 @@ post '/user/alias/new' do
 	src_email = "#{slh}@#{src.name}"
 	dst_email = "#{dlh}@#{dst.name}"
 	
-	e_src = @helper.get_alias_by_name(src_email, :src)
+	e_src = @con.get_alias_by_name(src_email, :src)
 	
 	unless e_src.nil?
 		session[:flash] = "Source address #{src_email} already exists"
 		redirect '/user/dashboard'
 	end
 	
-	@helper.add_alias(src, src_email, dst_email)
+	@con.add_alias(src, src_email, dst_email)
 	session[:flash] = "Added alias #{src_email} &rarr; #{dst_email}"
 	redirect '/user/dashboard'
 	
@@ -328,7 +328,7 @@ end
 
 post '/user/alias/:aid/delete' do |aid|
 	
-	a = @helper.get_alias(aid)
+	a = @con.get_alias(aid)
 	
 	if a.nil?
 		session[:flash] = "Alias not found"
@@ -340,7 +340,7 @@ post '/user/alias/:aid/delete' do |aid|
 		redirect '/user/dashboard'
 	end
 	
-	@helper.delete_alias(aid)
+	@con.delete_alias(aid)
 	
 	session[:flash] = "Alias #{a.source} &rarr; #{a.destination} deleted."
 	redirect "/user/domain/#{a.domain_id}"
