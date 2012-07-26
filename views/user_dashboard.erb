@@ -18,7 +18,7 @@
 				<legend>Add Email</legend>
 				<form method="post" action="<%= link_to "/user/email/new" %>">
 					<p class="ieonly">Address:</p>
-					<input class="txt" type="text" name="lh" placeholder="Address"/>@<select name="domain">
+					<input class="txt" type="text" name="lh" placeholder="Address"/> @ <select name="domain">
 					<% user.admin_domains.each do |id, d| %>
 					<option value="<%= id %>"><%= d.name %></option>
 					<% end %>
@@ -54,15 +54,14 @@
 				<legend>Add Alias</legend>
 				<form method="post" action="<%= link_to "/user/alias/new" %>">
 					<p class="ieonly">Address:</p>
-					<input class="txt" type="text" name="slh" placeholder="Address"/>@<select name="src_domain">
+					<input class="txt" type="text" name="slh" placeholder="Address"/> @ <select name="src_domain">
 					<% user.admin_domains.each do |id, d| %>
 					<option value="<%= id %>"><%= d.name %></option>
 					<% end %>
 					</select>
 					<br/>
 					<p class="ieonly">Destination:</p>
-					<input class="txt" type="text" name="dlh" placeholder="Destination"/>@
-					<select name="dst_domain">
+					<input class="txt" type="text" name="dlh" placeholder="Destination"/> @ <select name="dst_domain">
 	<% user.admin_domains.each do |id, d| %>
 						<option value="<%= id %>"><%= d.name %></option>
 	<% end %>

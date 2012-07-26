@@ -158,6 +158,9 @@ li {
 ul.scrollable {
 	max-height: 200px;
 	overflow: auto;
+	margin: 0px;
+	padding: 0px;
+	border: 1px solid #ccc;
 }
 
 ul.scrollable li {

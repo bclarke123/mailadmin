@@ -127,15 +127,21 @@ end
 
 post '/user/domain/new' do
 	
-	if @user.super_admin
-		
-		name = params[:name]
-		@helper.add_domain(name, @user.id)
-		
+	name = params[:name]
+	
+	unless @user.super_admin
+		redirect "/user/dashboard"
 	end
 	
-	redirect '/user/dashboard'
+	if name.nil? or name.empty?
+		session[:flash] = "No name specified"
+		redirect "/user/dashboard"
+	end
 	
+	@helper.add_domain(name, @user.id)
+	session[:flash] = "Domain #{name} added"
+	redirect '/user/dashboard'
+
 end
 
 post '/user/domain/:id/delete' do |id|

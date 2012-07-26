@@ -54,9 +54,11 @@
 			<em>No aliases found</em>
 <% end %>
 		</div>
+<% if user.super_admin %>
 		<form method="post" action="<%= link_to "/user/domain/#{domain.id}/delete" %>"
 			onsubmit="return confirm('Are you certain you would like to delete this domain and all associated users, aliases and admins?\n\nThis cannot be undone.');">
 			<input type="submit" class="btn del" value="Delete domain"/>
 		</form>
+<% end %>
 	</div>
 </div>
