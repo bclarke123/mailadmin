@@ -3,10 +3,11 @@
 require 'rubygems'
 require 'sinatra'
 
-require 'config'
-require 'connection'
+require File.join(File.dirname(__FILE__), 'connection')
 
 set :show_exceptions, true
+set :public_folder, File.join(File.dirname(__FILE__), '..', 'public')
+set :views, File.join(File.dirname(__FILE__), '..', 'views')
 
 enable :sessions
 

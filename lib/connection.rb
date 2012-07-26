@@ -3,8 +3,8 @@
 require 'mysql'
 require 'digest/md5'
 
-require 'config'
-require 'classes'
+require File.join(File.dirname(__FILE__), 'config')
+require File.join(File.dirname(__FILE__), 'classes')
 
 class Connection
 	def initialize
