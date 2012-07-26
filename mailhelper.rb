@@ -68,13 +68,11 @@ class MailHelper
 			where virtual_users.id = %d order by admin_domain_name desc;" % id)
 		
 		user = nil
-		first = true
 		
 		while row = q.fetch_hash
 			
-			user ||= User.new
-			
-			if first
+			if user.nil?
+				user = User.new
 				user.id = row['id']
 				user.email = row['email']
 				user.password = row['password']
@@ -89,8 +87,6 @@ class MailHelper
 				domain.name = row['admin_domain_name']
 				user.admin_domains[domain.id] = domain
 			end
-			
-			first = false
 			
 		end
 		
