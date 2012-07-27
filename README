@@ -1,6 +1,6 @@
 This is a Sinatra (http://www.sinatrarb.com/) application for administrating
 virtual domains, accounts and aliases for Postfix (http://www.postfix.org/) and
-Dovecot (http://www.dovecot.org) as configured using the tutorials found at 
+Dovecot (http://www.dovecot.org/) as configured using the tutorials found at 
 http://www.workaround.org/ispmail .  It is provided under the MIT license as
 follows.
 
