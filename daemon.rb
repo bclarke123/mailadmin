@@ -5,7 +5,8 @@ require 'daemons'
 
 pwd = Dir.pwd
 Daemons.run_proc('mailadmin.rb', 
-	{:dir_mode => :normal, :dir => "/home/jamin/mailadmin"}) do
+	{:dir_mode => :normal, 
+		:dir => File.dirname(__FILE__)}) do
 	Dir.chdir(pwd)
 	exec "ruby lib/mailadmin.rb"
 end
