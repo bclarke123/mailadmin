@@ -118,6 +118,9 @@ post '/user/password' do
 		session[:flash] = "Password can't be blank"
 	elsif pass != conf
 		session[:flash] = "Password and confirmation don't match"
+=begin
+TODO better password strength algo
+=end
 	else
 		@con.update_password(session[:userid], pass)
 		session[:flash] = "Password updated"
