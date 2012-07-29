@@ -100,8 +100,7 @@ class Connection
 			[ domain.id, Digest::MD5.hexdigest(password), email, super_admin ? 1 : 0 ])
 		
 		if admin_domains && admin_domains.length > 0
-			q = @con.query("select last_insert_id()")
-			id = q.fetch_row.first
+			id = insert_id
 			
 			admin_domains.each do |did|
 				@con.query("insert into domain_admins values(%d, %d)" % [ did, id ])
@@ -204,7 +203,7 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 		@con.query("insert into virtual_domains values(NULL, '%s');" % 
 			@con.escape_string(name))
 		
-		id = @con.query("select last_insert_id();").fetch_row.first
+		id = insert_id
 		
 		@con.query("insert into domain_admins values(%d, %d);" % [ id, uid ])
 		
@@ -261,6 +260,10 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def delete_alias(aid)
 		@con.query("delete from virtual_aliases where id = %d" % aid)
+	end
+
+	def insert_id
+		@con.query("select last_insert_id()").fetch_row.first
 	end
 	
 end
