@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'sinatra'
 
-require File.join(File.dirname(__FILE__), 'connection')
+require_relative 'connection'
 
 set :show_exceptions, true
 set :public_folder, File.join(File.dirname(__FILE__), '..', 'public')

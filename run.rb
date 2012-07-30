@@ -2,4 +2,4 @@
 
 require 'rubygems'
 require 'sinatra'
-require 'lib/mailadmin.rb'
+require_relative 'lib/mailadmin.rb'
