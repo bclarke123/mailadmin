@@ -5,7 +5,7 @@
 			<p class="error"><%= flash %></p>
 		<% end %>
 		
-		<% if user.admin_domains %>
+		<% unless user.admin_domains.empty? or user.super_admin %>
 			<div class="clear">
 				<h4>Manage Domain: <select onchange="showSelectedDomain(this.options[this.selectedIndex].value);">
 					<option value="0">-- Select --</option>
