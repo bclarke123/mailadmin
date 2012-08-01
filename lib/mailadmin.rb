@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'sinatra'
 
-require File.join(File.dirname(__FILE__), 'connection')
+require_relative 'connection'
 
 set :show_exceptions, true
 set :public_folder, File.join(File.dirname(__FILE__), '..', 'public')
@@ -118,6 +118,9 @@ post '/user/password' do
 		session[:flash] = "Password can't be blank"
 	elsif pass != conf
 		session[:flash] = "Password and confirmation don't match"
+=begin
+TODO better password strength algo
+=end
 	else
 		@con.update_password(session[:userid], pass)
 		session[:flash] = "Password updated"

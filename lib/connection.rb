@@ -3,13 +3,17 @@
 require 'mysql'
 require 'digest/md5'
 
-require File.join(File.dirname(__FILE__), 'config')
-require File.join(File.dirname(__FILE__), 'classes')
+require_relative 'config'
+require_relative 'classes'
 
 class Connection
 	def initialize
 		@con = Mysql::real_connect(
-			Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_DB)
+			MailConfig::DB_HOST, 
+			MailConfig::DB_USER, 
+			MailConfig::DB_PASS, 
+			MailConfig::DB_DB
+		)
 	end
 	
 	def close
