@@ -11,27 +11,25 @@ tutorials found at http://www.workaround.org/ispmail .
 	thin installed.  The default ruby that ships with Debian has some problems, I
 	recommend using RVM with Ruby 1.9.3 for production systems.  Install
 	instructions are available at https://rvm.io/rvm/install/ .  Once it's
-	running you can
-	> gem install sinatra thin mysql
+	running you can	`gem install sinatra thin mysql`
 - Download the source either using git or from the GitHub downloads page.
 	The latest version will always be at the top of 
 	https://github.com/germania/mailadmin/downloads
 - Extract the archive somewhere.
-- Inside of sql/ is a short SQL script to add a domain_admins table, and a
+- Inside of sql/ is a short SQL script to add a `domain_admins` table, and a
 	boolean flag on the users table.  Run this against your Postfix database.
 - You will want to set yourself up as a super admin, so you can add domains,
 	and administrate all existing ones without having to set yourself as an
 	admin for each one.  Assuming you are the first user in the database, run
-	> update virtual_users set super_admin = 1 where id = 1;
-- Open lib/config.rb and supply your database information.
-- You should now be able to 
-	> ruby ./run.rb
-	which should start listening on localhost:4567.  Point a browser at it, and
+	`update virtual_users set super_admin = 1 where id = 1;`
+- Open `lib/config.rb` and supply your database information.
+- You should now be able to	`ruby ./run.rb`
+	which should start listening on `localhost:4567`.  Point a browser at it, and
 	make sure you can log in with your email and password.
 - At this point you have a few options for deployment, I recommend installing
 	Passenger with RVM as described at 
 	http://everydayrails.com/2011/01/25/passenger-3-rvm.html
-	but there is also a provided daemon.rb which can be run as an unprivileged
+	but there is also a provided `daemon.rb` which can be run as an unprivileged
 	user and reverse proxied to for the "quick and dirty" approach.
 - Add domain admins, make a "change password" link somewhere, and you're ready 
 	to go!
