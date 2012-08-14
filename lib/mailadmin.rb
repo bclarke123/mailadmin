@@ -25,7 +25,7 @@ before '/user/*' do
 	
 	unless session[:userid]
 		session[:flash] = "You must log in to continue"
-		redirect link_to '/'
+		r '/'
 	end
 	
 	uid = session[:userid]
