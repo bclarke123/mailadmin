@@ -25,7 +25,7 @@ before '/user/*' do
 	
 	unless session[:userid]
 		session[:flash] = "You must log in to continue"
-		redirect '/'
+		redirect link_to '/'
 	end
 	
 	uid = session[:userid]
@@ -37,7 +37,7 @@ before '/user/domain/:id' do |id|
 	@domain = @user.admin_domains[id]
 	unless @user.super_admin || @domain
 		session[:flash] = "Domain #{id} not found"
-		redirect '/user/dashboard' 
+		r '/user/dashboard' 
 	end
 end
 
@@ -55,7 +55,7 @@ helpers do
   # Thanks to cypher23 on #mephisto and the folks on #rack for pointing me
   # in the right direction.
   # taken from https://gist.github.com/98310
-  def link_to url_fragment, mode=:path_only
+  def link_to url_fragment, mode=:full_url
     case mode
     when :path_only
       base = request.script_name
@@ -70,7 +70,12 @@ helpers do
     else
       raise "Unknown script_url mode #{mode}"
     end
+    url_fragment = "/#{url_fragment}" unless url_fragment =~ /^\// 
     "#{base}#{url_fragment}"
+  end
+  
+  def r url_fragment
+  	redirect link_to url_fragment
   end
 end
 
@@ -89,15 +94,15 @@ post '/login' do
 
 	unless id
 		session[:flash] = "Invalid login"
-		redirect '/'
+		r '/'
 	end
 
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 
 end
 
 get '/user' do 
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 end
 
 get '/user/dashboard' do
@@ -106,7 +111,7 @@ end
 
 get '/user/logout' do
 	session[:userid] = nil
-	redirect '/'
+	r '/'
 end
 
 post '/user/password' do 
@@ -126,7 +131,7 @@ TODO better password strength algo
 		session[:flash] = "Password updated"
 	end
 	
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 end
 
 post '/user/domain/new' do
@@ -134,17 +139,17 @@ post '/user/domain/new' do
 	name = params[:name]
 	
 	unless @user.super_admin
-		redirect "/user/dashboard"
+		r "/user/dashboard"
 	end
 	
 	if name.nil? or name.empty?
 		session[:flash] = "No name specified"
-		redirect "/user/dashboard"
+		r "/user/dashboard"
 	end
 	
 	@con.add_domain(name, @user.id)
 	session[:flash] = "Domain #{name} added"
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 
 end
 
@@ -156,7 +161,7 @@ post '/user/domain/:id/delete' do |id|
 		
 	end
 	
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 	
 end
 
@@ -181,7 +186,7 @@ get '/user/email/:id' do |id|
 	domain = @user.admin_domains[did]
 	unless domain
 		session[:flash] = "User #{id} not found"
-		redirect '/user/dashboard' 
+		r '/user/dashboard' 
 	end
 	
 	erb :edit_user,
@@ -204,7 +209,7 @@ post '/user/email/new' do
 	domain = @user.admin_domains[id]
 	unless domain
 		session[:flash] = "Domain #{id} not found"
-		redirect '/user/dashboard' 
+		r '/user/dashboard' 
 	end
 	
 	admin_domains = []
@@ -232,7 +237,7 @@ post '/user/email/new' do
 		session[:flash] = "User #{lh}@#{domain.name} added."
 	end
 	
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 	
 end
 
@@ -246,14 +251,14 @@ post '/user/email/:id' do |id|
 	
 	if user.nil?
 		session[:flash] = "User #{id} not found"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	# only have to validate password and admin settings
 	unless pass.nil? or pass.empty?
 		if pass != conf
 			session[:flash] = "Password and confirmation don't match"
-			redirect "/user/email/#{id}"
+			r "/user/email/#{id}"
 		end
 	end
 	
@@ -265,7 +270,7 @@ post '/user/email/:id' do |id|
 	@con.update_user(id, pass, admin_domains, sa)
 	
 	session[:flash] = "User #{user.email} updated."
-	redirect "/user/email/#{id}"
+	r "/user/email/#{id}"
 	
 end
 
@@ -275,18 +280,18 @@ post '/user/email/:id/delete' do |uid|
 	
 	if user.nil?
 		session[:flash] = "User not found"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	unless @user.admin_domains.has_key?(user.domain_id)
 		session[:flash] = "User not found"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	@con.delete_user(uid)
 	
 	session[:flash] = "User #{user.email} deleted."
-	redirect "/user/domain/#{user.domain_id}"
+	r "/user/domain/#{user.domain_id}"
 	
 end
 
@@ -301,17 +306,17 @@ post '/user/alias/new' do
 	
 	if src_id.nil? || src.nil?
 		session[:flash] = "Invalid source domain"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	if dst_id.nil? || dst.nil?
 		session[:flash] = "Invalid destination domain"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	if dlh.nil? || dlh.empty?
 		session[:flash] = "Destination user can't be blank"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	src_email = "#{slh}@#{src.name}"
@@ -321,12 +326,12 @@ post '/user/alias/new' do
 	
 	unless e_src.nil?
 		session[:flash] = "Source address #{src_email} already exists"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	@con.add_alias(src, src_email, dst_email)
 	session[:flash] = "Added alias #{src_email} &rarr; #{dst_email}"
-	redirect '/user/dashboard'
+	r '/user/dashboard'
 	
 end
 
@@ -336,18 +341,18 @@ post '/user/alias/:aid/delete' do |aid|
 	
 	if a.nil?
 		session[:flash] = "Alias not found"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	unless @user.admin_domains.has_key?(a.domain_id)
 		session[:flash] = "Alias not found"
-		redirect '/user/dashboard'
+		r '/user/dashboard'
 	end
 	
 	@con.delete_alias(aid)
 	
 	session[:flash] = "Alias #{a.source} &rarr; #{a.destination} deleted."
-	redirect "/user/domain/#{a.domain_id}"
+	r "/user/domain/#{a.domain_id}"
 	
 end
 

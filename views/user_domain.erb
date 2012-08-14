@@ -1,12 +1,12 @@
 <div id="user_outer">
 	<div id="welcome">
-		<p class="status">Logged in as <%= user.email %> [<a href="<%= link_to '/user/logout' %>">Log out</a>]</p>
+		<p class="status">Logged in as <%= user.email %> [<a href="<%= link_to 'user/logout' %>">Log out</a>]</p>
 		<% if flash %>
 			<p class="error"><%= flash %></p>
 		<% end %>
 		<ul class="breadcrumb">
 			<li>
-				<a href="<%= link_to '/user/dashboard' %>"><img src="/images/house.png" alt="Home"/></a>
+				<a href="<%= link_to 'user/dashboard' %>"><img src="<%= link_to 'images/house.png' %>" alt="Home"/></a>
 			</li>
 			<li><%= domain.name %></li>
 		</ul>
@@ -17,16 +17,16 @@
 <% users.each do |u| %>
 				<li>
 					<form method="post" 
-						action="<%= link_to("/user/email/#{u.id}/delete") %>"
+						action="<%= link_to "user/email/#{u.id}/delete" %>"
 						onsubmit="return confirm('Are you sure?');">
-						<input type="image" src="/images/email_delete.png" alt="Delete" title="Delete"/>
+						<input type="image" src="<%= link_to 'images/email_delete.png' %>" alt="Delete" title="Delete"/>
 					</form>
-					<a href="<%= link_to("/user/email/#{u.id}") %>">
-						<img src="/images/email_edit.png" alt="Edit" title="Edit"/>
+					<a href="<%= link_to "user/email/#{u.id}"  %>">
+						<img src="<%= link_to 'images/email_edit.png' %>" alt="Edit" title="Edit"/>
 					</a>
 					<%= u.email %>
 					<% if u.admin_domains.include? domain.id %>
-						<img src="/images/bullet_star.png" alt="Admin" title="Admin"/>
+						<img src="<%= link_to 'images/bullet_star.png' %>" alt="Admin" title="Admin"/>
 					<% end %>
 				</li>
 <% end %>
@@ -42,9 +42,9 @@
 <% aliases.each do |a| %>
 				<li>
 					<form method="post" 
-						action="<%= link_to("/user/alias/#{a.id}/delete") %>"
+						action="<%= link_to "user/alias/#{a.id}/delete" %>"
 						onsubmit="return confirm('Are you sure?');">
-						<input type="image" src="/images/email_delete.png" alt="Delete" title="Delete"/>
+						<input type="image" src="<%= link_to 'images/email_delete.png' %>" alt="Delete" title="Delete"/>
 					</form>
 					<%= a.source %> &rarr; <%= a.destination %>
 				</li>
@@ -55,7 +55,7 @@
 <% end %>
 		</div>
 <% if user.super_admin %>
-		<form method="post" action="<%= link_to "/user/domain/#{domain.id}/delete" %>"
+		<form method="post" action="<%= link_to "user/domain/#{domain.id}/delete" %>"
 			onsubmit="return confirm('Are you certain you would like to delete this domain and all associated users, aliases and admins?\n\nThis cannot be undone.');">
 			<input type="submit" class="btn del" value="Delete domain"/>
 		</form>

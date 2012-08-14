@@ -4,7 +4,7 @@
 	<% if flash %>
 		<p class="error"><%= flash %></p>
 	<% end %>
-	<form method="post" action="login">
+	<form method="post" action="<%= link_to 'login' %>">
 	
 		<p class="ieonly">Email address:</p>
 		<div class="input">

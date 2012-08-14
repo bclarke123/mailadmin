@@ -6,7 +6,7 @@
 		<% end %>
 		<ul class="breadcrumb">
 			<li>
-				<a href="<%= link_to '/user/dashboard' %>"><img src="/images/house.png" alt="Home"/></a>
+				<a href="<%= link_to '/user/dashboard' %>"><img src="<%= link_to '/images/house.png' %>" alt="Home"/></a>
 			</li>
 			<li><a href="<%= link_to "/user/domain/#{subject.domain_id}" %>"><%= user.admin_domains[subject.domain_id].name %></a></li>
 			<li><%= subject.email %></li>
