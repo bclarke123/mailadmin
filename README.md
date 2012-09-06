@@ -4,7 +4,10 @@
 This is a Sinatra (http://www.sinatrarb.com/) application for administrating
 virtual domains, accounts and aliases for Postfix (http://www.postfix.org/) and
 Dovecot (http://www.dovecot.org/) as configured using Christoph Haas' exemplary
-tutorials found at http://www.workaround.org/ispmail .
+tutorials found at http://www.workaround.org/ispmail .  It supports per-domain 
+admins, GoldFish autoresponders (http://www.remofritzsche.com/projects/goldfish/),
+and has a responsive layout that works on modern mobile devices as well as 
+traditional desktop browsers.
 
 ## Installation
 - Ensure you have ruby, sinatra, ruby-mysql and (optionally, but recommended) 
