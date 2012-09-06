@@ -44,4 +44,8 @@
 		text-overflow: ellipsis;
 	}
 	
+	ul.scrollable li {
+		max-width: 300px;
+	}
+	
 }
