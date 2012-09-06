@@ -1,0 +1,47 @@
+@media all and (max-width: 820px) {
+	
+	body {
+		padding: 0px;
+		margin: 0px;
+		background-color: #f1f2f3;
+		background-image: none;
+	}
+	
+	#content-wrapper {
+		width: 100%;
+		margin: 0px auto;
+		border-radius: 0px;
+		border-width: 0px;
+		box-shadow: none;
+		margin-bottom: 50px;
+	}
+	
+	#content {
+		padding: 5px 3px;
+	}
+	
+	#login {
+		padding: 0px;
+	}
+	
+	fieldset {
+		padding: 2px;
+		width: 95%;
+	}
+	
+	.txt.wide {
+		width: 90%;
+	}
+	
+	ul {
+		padding: 0px;
+	}
+	
+	li {
+		max-width: 95%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+}
