@@ -50,6 +50,109 @@
 					<input type="submit" class="btn ok" value="Save"/>
 				</form>
 			</fieldset>
+		<% end %>
+		
+<% 
+if user.autoresponder
+	ar = user.autoresponder
+%>
+		
+			<fieldset class="fl" id="autoresponder">
+				<legend>Auto-Respond</legend>
+				<form method="post" action="<%= link_to "/user/auto" %>">
+					<p class="ieonly">Name (eg, John Doe)</p>
+					<input class="txt" type="text" name="descname" placeholder="Name (eg, John Doe)" value="<%= ar.descname %>"/>
+					<br/>
+					<span style="padding-right: 10px;">From:</span>
+					<select name="from_m" id="from_m">
+<%
+
+if ar.from
+	from_y = ar.from.year
+	from_m = ar.from.month
+	from_d = ar.from.day
+end
+
+if ar.to
+	to_y = ar.to.year
+	to_m = ar.to.month
+	to_d = ar.to.day
+end
+
+m = [ 'January', 'February', 'March', 'April', 'May', 'June', 
+	'July', 'August', 'September', 'October', 'November', 'December' ]
+d = (1..31)
+y = Time.now.year
+y = (y..y+5)
+
+m.each_with_index do |n, i|
+	x = i + 1
+%>
+	<option value="<%= x %>"<% if from_m == x %> selected="selected"<% end %>><%= n %></option>
+<%
+end
+%>
+					</select>
+					<select name="from_d" id="from_d">
+<%
+d.each do |i|
+%>
+	<option value="<%= i %>"<% if from_d == i %> selected="selected"<% end %>><%= i %></option>
+<%
+end
+%>
+					</select>
+					<select name="from_y" id="from_y">
+<%
+y.each do |i|
+%>
+	<option value="<%= i %>"<% if from_y == i %> selected="selected"<% end %>><%= i %></option>
+<%
+end
+%>
+					</select>
+					<br/>
+					<span style="padding-right: 27px;">To:</span>
+					<select name="to_m" id="to_m">
+<%
+	m.each_with_index do |n, i|
+		x = i + 1
+%>
+		<option value="<%= x %>"<% if to_m == x %> selected="selected"<% end %>><%= n %></option>
+<%
+	end
+%>
+					</select>
+					<select name="to_d" id="to_d">
+<%
+d.each do |i|
+%>
+	<option value="<%= i %>"<% if to_d == i %> selected="selected"<% end %>><%= i %></option>
+<%
+end
+%>
+					</select>
+<select name="to_y" id="to_y">
+<%
+y.each do |i|
+%>
+	<option value="<%= i %>"<% if to_y == i %> selected="selected"<% end %>><%= i %></option>
+<%
+end
+%>
+					</select>
+					<p class="ieonly">Subject</p>
+					<input class="txt wide" type="text" name="subject" placeholder="Subject" value="<%= ar.subject %>"/>
+					<p class="ieonly">Message</p>
+					<textarea class="txt wide" name="message" rows="15" placeholder="Message"><%= ar.message %></textarea>
+					<input type="checkbox" name="ar_enabled" id="ar_enabled" value="1"<% if ar.enabled %> checked="checked"<% end %>/><label for="ar_enabled">Enabled</label>
+					<input type="submit" class="btn ok" value="Save"/>
+				</form>
+			</fieldset>
+			
+		<% end %>
+		
+		<% if user.admin_domains.length > 0 or user.super_admin %>
 			<fieldset class="fl" id="add_alias">
 				<legend>Add Alias</legend>
 				<form method="post" action="<%= link_to "/user/alias/new" %>">

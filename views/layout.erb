@@ -2,12 +2,16 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1"/>
 		<title>Email Admin Panel<%= @subtitle %></title>
 		<link rel="stylesheet" type="text/css" href="<%= link_to '/css/style.css' %>"/>
+		<link rel="stylesheet" type="text/css" href="<%= link_to '/css/mobile.css' %>"/>
 		<!--[If lt IE 9]>
 			<link rel="stylesheet" type="text/css" href="<%= link_to '/css/ie.css' %>"/>
 		<![EndIf]-->
+		<script type="text/javascript" src="<%= link_to '/js/datepickr.js' %>"></script>
 		<script type="text/javascript" src="<%= link_to '/js/util.js' %>"></script>
+		<link rel="shortcut icon" href="<%= link_to '/images/email_open_image.png' %>" type="image/x-icon" />
 	</head>
 	<body>
 		<div id="content-wrapper">

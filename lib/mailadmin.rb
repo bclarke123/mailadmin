@@ -356,6 +356,37 @@ post '/user/alias/:aid/delete' do |aid|
 	
 end
 
+post '/user/auto' do
+	
+	ar = @user.autoresponder
+	enabled = "1" == params[:ar_enabled]
+	descname = params[:descname]
+	subject = params[:subject]
+	message = params[:message]
+	
+	from_d = params[:from_d]
+	from_m = params[:from_m]
+	from_y = params[:from_y]
+	
+	to_d = params[:to_d]
+	to_m = params[:to_m]
+	to_y = params[:to_y]
+	
+	from = Date.strptime(
+		"%s-%s-%s" % [ from_d, from_m, from_y ],
+		"%d-%m-%Y")
+	
+	to = Date.strptime(
+		"%s-%s-%s" % [ to_d, to_m, to_y ],
+		"%d-%m-%Y")
+	
+	@con.save_autoresponder(@user.email, descname, from, to, message, enabled, subject)
+	
+	session[:flash] = "Autoresponder saved."
+	r '/user/dashboard'
+	
+end
+
 get '/user/:cmd' do |cmd|
 	user_cmd = "user_#{cmd}".intern
 	erb user_cmd, :locals => { :flash => @flash, :user => @user }

@@ -92,6 +92,27 @@ class Connection
 			
 		end
 		
+# we do this this way so we don't depend on having goldfish installed
+		if test_goldfish
+			
+			ar = user.autoresponder = AutoResponder.new
+			
+			q = @con.query("select * from autoresponder where email = '%s'" %
+				user.email)
+			row = q.fetch_hash
+			if row
+				
+				ar.email = row['email']
+				ar.descname = row['descname']
+				ar.from = Date.strptime(row['from'], '%Y-%m-%d')
+				ar.to = Date.strptime(row['to'], '%Y-%m-%d')
+				ar.message = row['message']
+				ar.enabled = row['enabled'].to_i == 1
+				ar.subject = row['subject']
+				
+			end
+		end
+		
 		return user
 		
 	end
@@ -268,6 +289,36 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 
 	def insert_id
 		@con.query("select last_insert_id()").fetch_row.first
+	end
+	
+	def test_goldfish
+		begin
+			@con.query("select * from autoresponder limit 1");
+			return true
+		rescue
+			return false
+		end
+	end
+	
+	def save_autoresponder(email, descname, from, to, message, enabled, subject)
+		
+		# return false unless test_goldfish
+		
+		from_str = from.strftime('%Y-%m-%d')
+		to_str = to.strftime('%Y-%m-%d')
+		
+		@con.query("replace into autoresponder values('%s', '%s', '%s', '%s', '%s', %d, '%s')" %
+			[ 
+				@con.escape_string(email),
+				@con.escape_string(descname),
+				@con.escape_string(from_str),
+				@con.escape_string(to_str),
+				@con.escape_string(message),
+				enabled ? 1 : 0,
+				@con.escape_string(subject)
+			]
+		)
+		
 	end
 	
 end

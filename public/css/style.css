@@ -45,6 +45,10 @@ a {
 	border-radius: 3px;
 }
 
+.txt.wide {
+	width: 320px;
+}
+
 .big {
 	font-size: 18pt;
 	line-height: 24pt;
@@ -146,6 +150,13 @@ form{
 #add_domain legend {
 	padding-left: 24px;
 	background-image: url('../images/add.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
+#autoresponder legend {
+	padding-left: 24px;
+	background-image: url('../images/page_white_go.png');
 	background-repeat: no-repeat;
 	background-position: 4px center;
 }
