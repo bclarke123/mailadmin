@@ -171,6 +171,11 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 		
 		user = get_user(uid)
 		
+		if test_goldfish
+			@con.query("delete from autoresponder where email = '%s'" % 
+				@con.escape_string(user.email))
+		end
+		
 		@con.query("delete from domain_admins where user_id = %d" % uid)
 		@con.query("delete from virtual_aliases where destination = '%s'" % 
 			@con.escape_string(user.email))
@@ -293,7 +298,7 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def test_goldfish
 		begin
-			@con.query("select * from autoresponder limit 1");
+			@con.query("select email from autoresponder limit 1");
 			return true
 		rescue
 			return false
@@ -302,7 +307,7 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def save_autoresponder(email, descname, from, to, message, enabled, subject)
 		
-		# return false unless test_goldfish
+		return false unless test_goldfish
 		
 		from_str = from.strftime('%Y-%m-%d')
 		to_str = to.strftime('%Y-%m-%d')
@@ -318,6 +323,48 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 				@con.escape_string(subject)
 			]
 		)
+		
+	end
+	
+	def each_autoresponder
+		
+		return unless test_goldfish
+		
+		q = @con.query("select * from `autoresponder` where `enabled` 
+			and `from` <= NOW() and `to` > NOW()")
+		
+		while row = q.fetch_hash
+			yield row
+		end
+		
+	end
+	
+	def already_responded?(user, recipient)
+		
+		return false unless test_goldfish
+		
+		q = @con.query("select 1 from autoresponder_recipients 
+			left join autoresponder 
+			on autoresponder_recipients.user_email = autoresponder.email 
+			where autoresponder.email = '%s' 
+			and autoresponder_recipients.recipient_email = '%s' 
+			and autoresponder_recipients.send_date >= autoresponder.`from`" %
+				[ @con.escape_string(user), @con.escape_string(recipient) ])
+		
+		if q.fetch_row
+			return true
+		end
+		
+		return false
+		
+	end
+	
+	def mark_responded(user, recipient)
+		
+		return false unless test_goldfish
+		
+		@con.query("replace into autoresponder_recipients values('%s', '%s', now())" %
+			[ @con.escape_string(user), @con.escape_string(recipient) ])
 		
 	end
 	
