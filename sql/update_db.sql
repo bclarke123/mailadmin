@@ -5,3 +5,10 @@ create table domain_admins (
 );
 
 alter table virtual_users add column super_admin boolean default false;
+
+create table autoresponder_recipients (
+	user_email varchar(255) not null references autoresponder(email),
+	recipient_email varchar(255) not null,
+	send_date datetime not null,
+	primary key(user_email, recipient_email)
+);
