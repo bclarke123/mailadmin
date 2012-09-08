@@ -37,6 +37,15 @@ traditional desktop browsers.
 - Add domain admins, make a "change password" link somewhere, and you're ready 
 	to go!
 
+## Screenshots
+Desktop:
+
+![Desktop screenshot](http://benclarke.ca/images/mailadmin.png)
+
+Mobile:
+
+![Mobile screenshot](http://benclarke.ca/images/mailadmin_mobile.png)
+
 ## License
 > Copyright (c) 2012 Ben Clarke <me@benclarke.ca>
 >
