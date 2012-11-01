@@ -45,6 +45,10 @@ Mobile:
 
 ![Mobile screenshot](http://benclarke.ca/images/mailadmin_mobile.png)
 
+## Testimonials
+
+> "Holy shit.  This thing is robust." -- Site administrator
+
 ## License
 > Copyright (c) 2012 Ben Clarke <me@benclarke.ca>
 >
