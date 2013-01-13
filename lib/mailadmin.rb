@@ -66,7 +66,14 @@ helpers do
       else
         port = ":#{request.port}"
       end
-      base = "#{request.scheme}://#{request.host}#{port}#{request.script_name}"
+      
+      if (! (MailConfig::HTTP_HOST && MailConfig::HTTP_SCHEME))
+        base = "#{request.scheme}://#{request.host}#{port}#{request.script_name}"
+      else
+        port = MailConfig::HTTP_PORT ? ":%d" % [ MailConfig::HTTP_PORT ] : port
+        base = "%s://%s%s%s" % [MailConfig::HTTP_SCHEME, MailConfig::HTTP_HOST, port, request.script_name]
+      end
+      
     else
       raise "Unknown script_url mode #{mode}"
     end
