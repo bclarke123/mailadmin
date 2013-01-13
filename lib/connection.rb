@@ -27,7 +27,7 @@ class Connection
 		end
 		
 		q = @con.query(
-			"select id, password from virtual_users where email = '%s';" % 
+			"select id, password from " + MailConfig::TABLE_USERS + " where email = '%s';" % 
 				@con.escape_string(email))
 		
 		id, hash = q.fetch_row
@@ -44,7 +44,7 @@ class Connection
 	
 	def login_exists?(lh, domain)
 		
-		q = @con.query("select count(*) from virtual_users where email = '%s'" %
+		q = @con.query("select count(*) from " + MailConfig::TABLE_USERS + " where email = '%s'" %
 			@con.escape_string("#{lh}@#{domain.name}") )
 		
 		return q.fetch_row.first.to_i > 0
@@ -53,7 +53,7 @@ class Connection
 	
 	def update_password(id, password)
 		
-		@con.query("update virtual_users set password = '%s' where id = %d;" %
+		@con.query("update " + MailConfig::TABLE_USERS + " set password = '%s' where id = %d;" %
 			[ Digest::MD5.hexdigest(password), id ])
 		
 	end
@@ -61,13 +61,13 @@ class Connection
 	def get_user(id)
 		
 		q = @con.query(
-			"select virtual_users.*, virtual_domains.id as admin_domain_id, 
-			virtual_domains.name as admin_domain_name 
-			from virtual_users 
-			left join domain_admins on virtual_users.id = domain_admins.user_id
-			left join virtual_domains on domain_admins.domain_id = virtual_domains.id 
-			or virtual_users.super_admin
-			where virtual_users.id = %d order by admin_domain_name desc;" % id)
+			"select " + MailConfig::TABLE_USERS + ".*, " + MailConfig::TABLE_DOMAINS + ".id as admin_domain_id, 
+			" + MailConfig::TABLE_DOMAINS + ".name as admin_domain_name 
+			from " + MailConfig::TABLE_USERS + " 
+			left join " + MailConfig::TABLE_ADMINS + " on " + MailConfig::TABLE_USERS + ".id = " + MailConfig::TABLE_ADMINS + ".user_id
+			left join " + MailConfig::TABLE_DOMAINS + " on " + MailConfig::TABLE_ADMINS + ".domain_id = " + MailConfig::TABLE_DOMAINS + ".id 
+			or " + MailConfig::TABLE_USERS + ".super_admin
+			where " + MailConfig::TABLE_USERS + ".id = %d order by admin_domain_name desc;" % id)
 		
 		user = nil
 		
@@ -121,18 +121,18 @@ class Connection
 		
 		email = @con.escape_string("#{lh}@#{domain.name}")
 		
-		@con.query("insert into virtual_users values(NULL, %d, '%s', '%s', %d)" %
-			[ domain.id, Digest::MD5.hexdigest(password), email, super_admin ? 1 : 0 ])
+		@con.query("insert into %s set domain_id = %d, password = '%s', email = '%s', super_admin = %d " %
+			[ MailConfig::TABLE_USERS, domain.id, Digest::MD5.hexdigest(password), email, super_admin ? 1 : 0 ])
 		
 		if admin_domains && admin_domains.length > 0
 			id = insert_id
 			
 			admin_domains.each do |did|
-				@con.query("insert into domain_admins values(%d, %d)" % [ did, id ])
+				@con.query("insert into " + MailConfig::TABLE_ADMINS + " values(%d, %d)" % [ did, id ])
 			end
 		end
 		
-		@con.query("insert into virtual_aliases values(NULL, %d, '%s', '%s')" %
+		@con.query("insert into " + MailConfig::TABLE_ALIASES + " values(NULL, %d, '%s', '%s')" %
 			[ domain.id, email, email ])
 		
 	end
@@ -147,7 +147,7 @@ class Connection
 		
 		sa = super_admin ? 1 : 0
 		
-		@con.query("update virtual_users set password = %s, super_admin = %d 
+		@con.query("update " + MailConfig::TABLE_USERS + " set password = %s, super_admin = %d 
 			where id = %d;" % [ password, sa, uid ])
 		
 =begin
@@ -156,11 +156,11 @@ access to 2 different domains the ability to give the same user access
 to domains the other can't see -- it'll delete ones that "I" can't check.
 =end
 
-		@con.query("delete from domain_admins where user_id = %d;" % uid)
+		@con.query("delete from " + MailConfig::TABLE_ADMINS + " where user_id = %d;" % uid)
 		
 		sql = nil
 		admin_domains.each do |did|
-			(sql ||= "insert into domain_admins values") << " (#{did}, #{uid})," 
+			(sql ||= "insert into " + MailConfig::TABLE_ADMINS + " values") << " (#{did}, #{uid})," 
 		end
 		
 		@con.query(sql.gsub(/,$/, '')) unless sql.nil?
@@ -176,20 +176,20 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 				@con.escape_string(user.email))
 		end
 		
-		@con.query("delete from domain_admins where user_id = %d" % uid)
-		@con.query("delete from virtual_aliases where destination = '%s'" % 
+		@con.query("delete from " + MailConfig::TABLE_ADMINS + " where user_id = %d" % uid)
+		@con.query("delete from " + MailConfig::TABLE_ALIASES + " where destination = '%s'" % 
 			@con.escape_string(user.email))
-		@con.query("delete from virtual_users where id = %d" % uid)
+		@con.query("delete from " + MailConfig::TABLE_USERS + " where id = %d" % uid)
 		
 	end
 	
 	def domain_users(domain)
 		
-		q = @con.query("select virtual_users.*, domain_admins.domain_id as is_admin 
-			from virtual_users left join domain_admins 
-			on virtual_users.domain_id = domain_admins.domain_id
-			and domain_admins.user_id = virtual_users.id
-			where virtual_users.domain_id = %d order by email asc" % domain.id)
+		q = @con.query("select " + MailConfig::TABLE_USERS + ".*, " + MailConfig::TABLE_ADMINS + ".domain_id as is_admin 
+			from " + MailConfig::TABLE_USERS + " left join " + MailConfig::TABLE_ADMINS + " 
+			on " + MailConfig::TABLE_USERS + ".domain_id = " + MailConfig::TABLE_ADMINS + ".domain_id
+			and " + MailConfig::TABLE_ADMINS + ".user_id = " + MailConfig::TABLE_USERS + ".id
+			where " + MailConfig::TABLE_USERS + ".domain_id = %d order by email asc" % domain.id)
 		
 		ret = []
 		
@@ -210,7 +210,7 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def domain_aliases(domain)
 		
-		q = @con.query("select * from virtual_aliases
+		q = @con.query("select * from " + MailConfig::TABLE_ALIASES + "
 			where domain_id = %d and source != destination order by source asc" % domain.id)
 		ret = []
 		while row = q.fetch_hash
@@ -230,27 +230,27 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def add_domain(name, uid)
 		
-		@con.query("insert into virtual_domains values(NULL, '%s');" % 
+		@con.query("insert into " + MailConfig::TABLE_DOMAINS + " values(NULL, '%s');" % 
 			@con.escape_string(name))
 		
 		id = insert_id
 		
-		@con.query("insert into domain_admins values(%d, %d);" % [ id, uid ])
+		@con.query("insert into " + MailConfig::TABLE_ADMINS + " values(%d, %d);" % [ id, uid ])
 		
 	end
 	
 	def delete_domain(id)
 		
-		@con.query("delete from virtual_users where domain_id = %d;" % id)
-		@con.query("delete from virtual_aliases where domain_id = %d;" % id)
-		@con.query("delete from domain_admins where domain_id = %d;" % id)
-		@con.query("delete from virtual_domains where id = %d;" % id)
+		@con.query("delete from " + MailConfig::TABLE_USERS + " where domain_id = %d;" % id)
+		@con.query("delete from " + MailConfig::TABLE_ALIASES + " where domain_id = %d;" % id)
+		@con.query("delete from " + MailConfig::TABLE_ADMINS + " where domain_id = %d;" % id)
+		@con.query("delete from " + MailConfig::TABLE_DOMAINS + " where id = %d;" % id)
 		
 	end
 	
 	def get_alias(aid)
 		
-		q = @con.query("select * from virtual_aliases where id = %d" % aid)
+		q = @con.query("select * from " + MailConfig::TABLE_ALIASES + " where id = %d" % aid)
 		
 		ret = nil
 		
@@ -272,7 +272,7 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 		
 		f = field == :src ? "source" : "destination"
 		
-		q = @con.query("select id from virtual_aliases where %s = '%s'" % 
+		q = @con.query("select id from " + MailConfig::TABLE_ALIASES + " where %s = '%s'" % 
 			[ f, @con.escape_string(name) ])
 		
 		return row[0] if row = q.fetch_row
@@ -283,13 +283,13 @@ to domains the other can't see -- it'll delete ones that "I" can't check.
 	
 	def add_alias(src_domain, src, dst)
 		
-		@con.query("insert into virtual_aliases values (NULL, %d, '%s', '%s')" %
+		@con.query("insert into " + MailConfig::TABLE_ALIASES + " values (NULL, %d, '%s', '%s')" %
 			[ src_domain.id, @con.escape_string(src), @con.escape_string(dst) ])
 		
 	end
 	
 	def delete_alias(aid)
-		@con.query("delete from virtual_aliases where id = %d" % aid)
+		@con.query("delete from " + MailConfig::TABLE_ALIASES + " where id = %d" % aid)
 	end
 
 	def insert_id
