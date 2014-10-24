@@ -30,3 +30,4 @@ build/
 #dotenv environment variable files
 .env
 *.sublime-project
+*.sublime-workspace
