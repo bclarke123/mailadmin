@@ -6,8 +6,7 @@ Dotenv.load
 
 require 'bundler'
 
-Bundler.require(:default, :development)
-
+Bundler.require(:default, ENV['RACK_ENV'].to_sym)
 
 
 require 'sinatra'
