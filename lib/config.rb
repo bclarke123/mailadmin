@@ -13,7 +13,7 @@ module MailConfig
   
 	HTTP_SCHEME = 'http'
 	HTTP_HOST   = 'localhost'
-	HTTP_PORT   = 4567
+	HTTP_PORT   = 9393
 	
 # If you're going to use the built-in autoresponder, this should return a
 # user's maildir mailbox when %u is replaced with their username, and %d with

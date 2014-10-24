@@ -8,6 +8,8 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
+    shotgun (0.9)
+      rack (>= 1.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -28,6 +30,7 @@ DEPENDENCIES
   mysql (= 2.9.1)
   rack (= 1.5.2)
   rack-protection (= 1.5.3)
+  shotgun (= 0.9)
   sinatra (= 1.4.5)
   thin (= 1.6.3)
   tilt (= 1.4.1)
