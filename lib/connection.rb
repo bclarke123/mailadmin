@@ -5,6 +5,7 @@ require 'digest/md5'
 
 require_relative 'config'
 require_relative 'classes'
+require_relative 'password_shemes'
 
 class Connection
 	def initialize
@@ -34,7 +35,9 @@ class Connection
 		
 		return false unless id
 		
-		if Digest::MD5.hexdigest(password) == hash
+		pw = Dovecot::Password.new(password, hash)
+
+		if pw.equal?
 			return id
 		end
 		
@@ -120,9 +123,10 @@ class Connection
 	def add_user(lh, domain, password, admin_domains, super_admin)
 		
 		email = @con.escape_string("#{lh}@#{domain.name}")
-		
+		pw = Dovecot::Password.new(password)
+
 		@con.query("insert into %s set domain_id = %d, password = '%s', email = '%s', super_admin = %d " %
-			[ MailConfig::TABLE_USERS, domain.id, Digest::MD5.hexdigest(password), email, super_admin ? 1 : 0 ])
+			[ MailConfig::TABLE_USERS, domain.id, pw.get, email, super_admin ? 1 : 0 ])
 		
 		if admin_domains && admin_domains.length > 0
 			id = insert_id
@@ -142,7 +146,8 @@ class Connection
 		if password.nil? or password.empty?
 			password = "password"
 		else
-			password = "'%s'" % Digest::MD5.hexdigest(password)
+			pw = Dovecot::Password.new(password)
+			password = "'%s'" % pw.get
 		end
 		
 		sa = super_admin ? 1 : 0
