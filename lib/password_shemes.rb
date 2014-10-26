@@ -16,19 +16,20 @@ module Dovecot
     HASH_LENGTH = { 'smd5' => 16, 'ssha' => 20, 'ssha256' => 32, 'ssha512' => 64 }
     SCHEMES = {'hashed' => ['plain', 'plain_md5', 'ldap_md5', 'sha', 'sha256', 'sha512'], 'salted' =>  ['smd5', 'ssha', 'ssha256', 'ssha512']}
     
-    def initialize(password, hash=nil, scheme=nil, salt_length=nil)
+    def initialize(password, hash='', scheme='', salt_length=nil)
       @password     = password
       @hash         = hash
-      
-      if scheme.nil? 
+      scheme.downcase!
+      if scheme.empty? 
         if !(defined? MailConfig::PASS_SCHEME).nil?
-          scheme =  MailConfig::PASS_SCHEME
+          scheme =  MailConfig::PASS_SCHEME.downcase
           raise "The password scheme \"#{scheme}\" which you have defined in lib/config.rb is not supported! Please check the spelling." unless ((SCHEMES['hashed'].include? scheme) || (SCHEMES['salted'].include? scheme))
         else 
-          scheme = 'SSHA512'
+          scheme = 'ssha512'
         end
         @scheme = scheme
       else
+
         raise "The password scheme \"#{scheme}\" is not supported! Please check the spelling." unless ((SCHEMES['hashed'].include? scheme) || (SCHEMES['salted'].include? scheme))
         @scheme = scheme
       end
@@ -118,20 +119,15 @@ module Dovecot
     end
 
     def get() 
-      make_pass(@scheme, @password, '', @salt_length)
+      self.class.make_pass(@scheme, @password, '', @salt_length)
     end
 
     def equal?
-      puts 'DEBUG-------------'
-      puts "@password = #{@password}\n@hash = #{@hash}"
       self.class.equal(@password, @hash)
     end
 
     def self.equal(clear_pw, dbhash)
       splitted_hash = split_pass(dbhash)
-      puts 'DEBUG-------------'
-      puts "@clear_pw = #{clear_pw}\ndbhash = #{dbhash}"
-      pp(splitted_hash)
       pw_hash = make_pass(splitted_hash[0], clear_pw, splitted_hash[2])
       if(dbhash == pw_hash)
         return true
