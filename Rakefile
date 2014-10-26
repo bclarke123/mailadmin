@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'dotenv/tasks'
 
 task :default => [ :usage ]
 
@@ -20,7 +21,7 @@ EOF
 
 end
 
-task :server do
+task :server => :dotenv do
 	require_relative 'lib/mailadmin.rb'
 	Sinatra::Application.run!
 end
