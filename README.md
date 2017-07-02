@@ -8,8 +8,8 @@ It's recommended that hashes are saved in the same format as doveadm pw generate
 `{<SCHEME>}<HASH>` e.g. `{SSHA}ys5cgMtaBtF0wsg1lXZDv2gc1qTnx7IJ` if hashes are stored 
 without the scheme prefix it uses the default scheme which is configured at lib/config.rb `PASS_SCHEME  = 'SSHA512'` and if this isn't defined it uses ssha512 as fallback.
 
-###Available Schemes are:
-####Without salt:
+### Available Schemes are:
+#### Without salt:
 - plain
 - plain_md5
 - ldap_md5
