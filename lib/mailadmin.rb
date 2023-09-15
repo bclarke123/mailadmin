@@ -10,6 +10,7 @@ set :public_folder, File.join(File.dirname(__FILE__), '..', 'public')
 set :views, File.join(File.dirname(__FILE__), '..', 'views')
 
 enable :sessions
+set :session_secret, ENV['session_secret']
 
 before do
 	@con = Connection.new

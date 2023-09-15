@@ -9,7 +9,7 @@ set :app_file, 'run.rb'
 disable :run
 
 log = File.new("logs/mailadmin.log", "a")
-STDOUT.reopen(log)
+#STDOUT.reopen(log) # Redirecting STDOUT kills passanger! https://github.com/phusion/passenger/wiki/Debugging-application-startup-problems 
 STDERR.reopen(log)
 
 run Sinatra::Application
